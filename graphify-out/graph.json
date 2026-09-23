@@ -1,0 +1,379 @@
+{
+  "directed": false,
+  "multigraph": false,
+  "graph": {
+    "hyperedges": [
+      {
+        "id": "financial_calculation_logic_flow",
+        "label": "Financial Calculation Logic Flow",
+        "nodes": [
+          "finsight_notebook_example_calcemi",
+          "finsight_notebook_example_emi",
+          "finsight_notebook_example_amort",
+          "finsight_notebook_example_scenario"
+        ],
+        "relation": "participate_in",
+        "confidence": "EXTRACTED",
+        "confidence_score": 1.0,
+        "source_file": "FinSight_Notebook_Example.html"
+      },
+      {
+        "id": "notebook_visual_identity",
+        "label": "Notebook Visual Identity",
+        "nodes": [
+          "finsight_design_color_palette",
+          "finsight_notebook_example_html",
+          "finsight_architecture_uiux_guide_product_definition"
+        ],
+        "relation": "form",
+        "confidence": "INFERRED",
+        "confidence_score": 0.85,
+        "source_file": "FinSight_Design.md"
+      }
+    ]
+  },
+  "nodes": [
+    {
+      "id": "finsight_notebook_example_amort",
+      "label": "amort()",
+      "author": null,
+      "captured_at": null,
+      "community": 0,
+      "contributor": null,
+      "file_type": "code",
+      "norm_label": "amort()",
+      "rationale": null,
+      "source_file": "FinSight_Notebook_Example.html",
+      "source_location": null,
+      "source_url": null
+    },
+    {
+      "id": "finsight_notebook_example_calcemi",
+      "label": "calcEmi()",
+      "author": null,
+      "captured_at": null,
+      "community": 0,
+      "contributor": null,
+      "file_type": "code",
+      "norm_label": "calcemi()",
+      "rationale": null,
+      "source_file": "FinSight_Notebook_Example.html",
+      "source_location": null,
+      "source_url": null
+    },
+    {
+      "id": "finsight_notebook_example_emi",
+      "label": "emi()",
+      "author": null,
+      "captured_at": null,
+      "community": 0,
+      "contributor": null,
+      "file_type": "code",
+      "norm_label": "emi()",
+      "rationale": null,
+      "source_file": "FinSight_Notebook_Example.html",
+      "source_location": null,
+      "source_url": null
+    },
+    {
+      "id": "finsight_notebook_example_scenario",
+      "label": "scenario()",
+      "author": null,
+      "captured_at": null,
+      "community": 0,
+      "contributor": null,
+      "file_type": "code",
+      "norm_label": "scenario()",
+      "rationale": null,
+      "source_file": "FinSight_Notebook_Example.html",
+      "source_location": null,
+      "source_url": null
+    },
+    {
+      "id": "finsight_architecture_uiux_guide_calculateemi",
+      "label": "calculateEMI",
+      "author": null,
+      "captured_at": null,
+      "community": 1,
+      "contributor": null,
+      "file_type": "code",
+      "norm_label": "calculateemi",
+      "rationale": null,
+      "source_file": "FinSight_Architecture_UIUX_Guide.md",
+      "source_location": null,
+      "source_url": null
+    },
+    {
+      "id": "finsight_architecture_uiux_guide_calculatescenario",
+      "label": "calculateScenario",
+      "author": null,
+      "captured_at": null,
+      "community": 1,
+      "contributor": null,
+      "file_type": "code",
+      "norm_label": "calculatescenario",
+      "rationale": null,
+      "source_file": "FinSight_Architecture_UIUX_Guide.md",
+      "source_location": null,
+      "source_url": null
+    },
+    {
+      "id": "finsight_architecture_uiux_guide_generateamortization",
+      "label": "generateAmortization",
+      "author": null,
+      "captured_at": null,
+      "community": 1,
+      "contributor": null,
+      "file_type": "code",
+      "norm_label": "generateamortization",
+      "rationale": null,
+      "source_file": "FinSight_Architecture_UIUX_Guide.md",
+      "source_location": null,
+      "source_url": null
+    },
+    {
+      "id": "finsight_architecture_uiux_guide_calculatefuturevalue",
+      "label": "calculateFutureValue",
+      "author": null,
+      "captured_at": null,
+      "community": 2,
+      "contributor": null,
+      "file_type": "code",
+      "norm_label": "calculatefuturevalue",
+      "rationale": null,
+      "source_file": "FinSight_Architecture_UIUX_Guide.md",
+      "source_location": null,
+      "source_url": null
+    },
+    {
+      "id": "finsight_architecture_uiux_guide_financial_engine",
+      "label": "Financial Engine",
+      "author": null,
+      "captured_at": null,
+      "community": 2,
+      "contributor": null,
+      "file_type": "code",
+      "norm_label": "financial engine",
+      "rationale": "The financial engine should be independently testable and decoupled from the UI.",
+      "source_file": "FinSight_Architecture_UIUX_Guide.md",
+      "source_location": null,
+      "source_url": null
+    },
+    {
+      "id": "finsight_notebook_example_fv",
+      "label": "fv()",
+      "author": null,
+      "captured_at": null,
+      "community": 2,
+      "contributor": null,
+      "file_type": "code",
+      "norm_label": "fv()",
+      "rationale": null,
+      "source_file": "FinSight_Notebook_Example.html",
+      "source_location": null,
+      "source_url": null,
+      "verification": "unverified"
+    },
+    {
+      "id": "finsight_notebook_example_html",
+      "label": "FinSight Notebook Example",
+      "author": null,
+      "captured_at": null,
+      "community": 3,
+      "contributor": null,
+      "file_type": "code",
+      "norm_label": "finsight notebook example",
+      "rationale": null,
+      "source_file": "FinSight_Notebook_Example.html",
+      "source_location": null,
+      "source_url": null
+    },
+    {
+      "id": "finsight_design_color_palette",
+      "label": "Notebook Color Palette",
+      "author": null,
+      "captured_at": null,
+      "community": 3,
+      "contributor": null,
+      "file_type": "concept",
+      "norm_label": "notebook color palette",
+      "rationale": null,
+      "source_file": "FinSight_Design.md",
+      "source_location": null,
+      "source_url": null
+    },
+    {
+      "id": "finsight_design_design_system",
+      "label": "FinSight Design System",
+      "author": null,
+      "captured_at": null,
+      "community": 3,
+      "contributor": null,
+      "file_type": "document",
+      "norm_label": "finsight design system",
+      "rationale": null,
+      "source_file": "FinSight_Design.md",
+      "source_location": null,
+      "source_url": null
+    },
+    {
+      "id": "finsight_architecture_uiux_guide_product_definition",
+      "label": "FinSight Product Definition",
+      "author": null,
+      "captured_at": null,
+      "community": 4,
+      "contributor": null,
+      "file_type": "concept",
+      "norm_label": "finsight product definition",
+      "rationale": null,
+      "source_file": "FinSight_Architecture_UIUX_Guide.md",
+      "source_location": null,
+      "source_url": null
+    },
+    {
+      "id": "finsight_tvm_calculator_prd_product_goals",
+      "label": "FinSight Product Goals",
+      "author": null,
+      "captured_at": null,
+      "community": 4,
+      "contributor": null,
+      "file_type": "document",
+      "norm_label": "finsight product goals",
+      "rationale": null,
+      "source_file": "FinSight_TVM_Calculator_PRD.md",
+      "source_location": null,
+      "source_url": null
+    }
+  ],
+  "links": [
+    {
+      "source": "finsight_architecture_uiux_guide_calculatescenario",
+      "target": "finsight_architecture_uiux_guide_calculateemi",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "FinSight_Architecture_UIUX_Guide.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "finsight_notebook_example_amort",
+      "target": "finsight_notebook_example_calcemi",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "FinSight_Notebook_Example.html",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "finsight_notebook_example_emi",
+      "target": "finsight_notebook_example_calcemi",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "FinSight_Notebook_Example.html",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "finsight_notebook_example_scenario",
+      "target": "finsight_notebook_example_calcemi",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "FinSight_Notebook_Example.html",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "finsight_notebook_example_html",
+      "target": "finsight_design_design_system",
+      "relation": "implements",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "FinSight_Notebook_Example.html",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "finsight_architecture_uiux_guide_financial_engine",
+      "target": "finsight_architecture_uiux_guide_calculatefuturevalue",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "FinSight_Architecture_UIUX_Guide.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "finsight_design_design_system",
+      "target": "finsight_design_color_palette",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "FinSight_Design.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "finsight_tvm_calculator_prd_product_goals",
+      "target": "finsight_architecture_uiux_guide_product_definition",
+      "relation": "semantically_similar_to",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "FinSight_TVM_Calculator_PRD.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "finsight_notebook_example_fv",
+      "target": "finsight_architecture_uiux_guide_calculatefuturevalue",
+      "relation": "semantically_similar_to",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "FinSight_Notebook_Example.html",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "finsight_architecture_uiux_guide_generateamortization",
+      "target": "finsight_architecture_uiux_guide_calculateemi",
+      "relation": "calls",
+      "confidence": "INFERRED",
+      "confidence_score": 0.9,
+      "source_file": "FinSight_Architecture_UIUX_Guide.md",
+      "source_location": null,
+      "weight": 1.0
+    }
+  ],
+  "hyperedges": [
+    {
+      "id": "financial_calculation_logic_flow",
+      "label": "Financial Calculation Logic Flow",
+      "nodes": [
+        "finsight_notebook_example_calcemi",
+        "finsight_notebook_example_emi",
+        "finsight_notebook_example_amort",
+        "finsight_notebook_example_scenario"
+      ],
+      "relation": "participate_in",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "FinSight_Notebook_Example.html"
+    },
+    {
+      "id": "notebook_visual_identity",
+      "label": "Notebook Visual Identity",
+      "nodes": [
+        "finsight_design_color_palette",
+        "finsight_notebook_example_html",
+        "finsight_architecture_uiux_guide_product_definition"
+      ],
+      "relation": "form",
+      "confidence": "INFERRED",
+      "confidence_score": 0.85,
+      "source_file": "FinSight_Design.md"
+    }
+  ]
+}

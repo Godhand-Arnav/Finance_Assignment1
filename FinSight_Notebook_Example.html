@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FinSight — Financial Notebook</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap');
+
+:root{
+  --paper:#f4f0e6;
+  --paper-2:#eee9dd;
+  --ink:#202923;
+  --muted:#697169;
+  --rule:#d8d1c2;
+  --accent:#285943;
+  --accent-soft:#dfe9df;
+  --red:#a14d43;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0;color:var(--ink);
+  font-family:"IBM Plex Sans",Arial,sans-serif;
+  background:
+    repeating-linear-gradient(to bottom,
+      transparent 0, transparent 31px,
+      rgba(102,112,105,.09) 32px);
+  background-color:var(--paper);
+}
+button,input,select{font:inherit}
+button{cursor:pointer}
+.page{max-width:1180px;margin:auto;padding:32px 28px 70px}
+.topbar{
+  display:flex;justify-content:space-between;align-items:end;
+  padding-bottom:18px;border-bottom:2px solid var(--ink);
+}
+.brand{font-size:25px;font-weight:700;letter-spacing:.02em}
+.subtitle{font-size:12px;color:var(--muted);margin-top:3px}
+.meta{font-family:"IBM Plex Mono";font-size:11px;color:var(--muted);text-align:right}
+.layout{display:grid;grid-template-columns:190px 1fr;gap:38px;margin-top:28px}
+.nav{position:sticky;top:20px;align-self:start}
+.nav-title{font-size:11px;font-weight:700;letter-spacing:.12em;color:var(--muted);margin-bottom:10px}
+.nav button{
+  display:block;width:100%;text-align:left;border:0;border-bottom:1px solid var(--rule);
+  background:transparent;color:var(--ink);padding:11px 4px;font-size:13px;
+}
+.nav button.active{color:var(--accent);font-weight:700;padding-left:12px}
+.content{min-width:0}
+.page-title{font-size:31px;font-weight:600;line-height:1.1;margin:0}
+.kicker{font-family:"IBM Plex Mono";font-size:11px;color:var(--accent);letter-spacing:.1em;margin-bottom:8px}
+.description{color:var(--muted);font-size:14px;max-width:700px;margin:8px 0 25px}
+.worksheet{
+  border-top:1px solid var(--ink);
+  border-bottom:1px solid var(--ink);
+  padding:24px 0;
+}
+.inputs{display:grid;grid-template-columns:repeat(3,1fr);gap:25px}
+.field label{display:block;font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:7px}
+.field input,.field select{
+  width:100%;border:0;border-bottom:1px solid #777e77;border-radius:0;
+  background:transparent;color:var(--ink);padding:9px 0;outline:none;
+  font-family:"IBM Plex Mono";font-size:16px;
+}
+.field input:focus,.field select:focus{border-bottom:2px solid var(--accent)}
+.actions{margin:26px 0 10px;display:flex;gap:12px}
+.btn{
+  border:1px solid var(--ink);background:var(--ink);color:var(--paper);
+  padding:10px 18px;font-size:13px;
+}
+.btn.secondary{background:transparent;color:var(--ink)}
+.answer{
+  margin-top:30px;padding:25px 0;border-top:1px solid var(--rule);
+}
+.answer-label{font-size:11px;text-transform:uppercase;letter-spacing:.12em;color:var(--muted)}
+.answer-value{
+  font-family:"IBM Plex Mono";font-size:38px;font-weight:600;
+  margin:7px 0 3px;color:var(--accent);
+}
+.answer-caption{font-size:13px;color:var(--muted)}
+.working{margin-top:30px}
+.working-title{font-size:11px;letter-spacing:.12em;color:var(--muted);font-weight:700}
+.formula{
+  font-family:"IBM Plex Mono";font-size:15px;line-height:2;
+  padding:15px 0;color:#303932;
+}
+.underline{border-bottom:1px solid var(--ink);padding-bottom:3px}
+.chart-section{margin-top:30px;padding-top:22px;border-top:1px solid var(--rule)}
+.chart-title{font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase}
+.chart{height:240px;margin-top:12px;position:relative;border-bottom:1px solid #777e77;border-left:1px solid #777e77;overflow:hidden}
+.chart:before{
+  content:"";position:absolute;inset:0;
+  background:repeating-linear-gradient(to bottom,transparent 0,transparent 47px,rgba(102,112,105,.10) 48px);
+}
+.line{
+  position:absolute;left:4%;bottom:8%;width:91%;height:78%;
+}
+.line svg{width:100%;height:100%;overflow:visible}
+.summary{display:grid;grid-template-columns:repeat(3,1fr);border-top:1px solid var(--rule);margin-top:24px}
+.summary div{padding:14px 12px 14px 0;border-right:1px solid var(--rule)}
+.summary div+div{padding-left:15px}
+.summary div:last-child{border-right:0}
+.summary small{display:block;color:var(--muted);font-size:11px;text-transform:uppercase}
+.summary strong{font-family:"IBM Plex Mono";font-size:16px;display:block;margin-top:4px}
+.hidden{display:none}
+.note{
+  margin-top:26px;border-left:2px solid var(--rule);padding-left:14px;
+  color:var(--muted);font-size:12px;line-height:1.7;
+}
+.error{display:none;color:var(--red);font-size:12px;margin-top:10px}
+.footer{margin-top:45px;padding-top:15px;border-top:1px solid var(--rule);font-size:11px;color:var(--muted);display:flex;justify-content:space-between}
+@media(max-width:800px){
+ .layout{grid-template-columns:1fr;gap:20px}.nav{position:static;display:flex;overflow:auto;border-bottom:1px solid var(--rule)}
+ .nav-title{display:none}.nav button{min-width:max-content;border-bottom:0;padding:10px 12px}
+ .nav button.active{padding-left:12px;border-bottom:2px solid var(--accent)}
+ .inputs{grid-template-columns:1fr}.summary{grid-template-columns:1fr}.summary div{border-right:0;border-bottom:1px solid var(--rule)}
+ .summary div+div{padding-left:0}.answer-value{font-size:31px}.topbar{align-items:start}
+}
+</style>
+</head>
+<body>
+<div class="page">
+<header class="topbar">
+  <div>
+    <div class="brand">FinSight</div>
+    <div class="subtitle">Time Value of Money · Financial Calculation Notebook</div>
+  </div>
+  <div class="meta">BS3210<br>ASSIGNMENT 01</div>
+</header>
+
+<div class="layout">
+<aside class="nav">
+  <div class="nav-title">CALCULATORS</div>
+  <button class="active" data-page="fv">01 &nbsp; Future Value</button>
+  <button data-page="pv">02 &nbsp; Present Value</button>
+  <button data-page="si">03 &nbsp; Simple Interest</button>
+  <button data-page="ci">04 &nbsp; Compound Interest</button>
+  <button data-page="emi">05 &nbsp; EMI</button>
+  <button data-page="amort">06 &nbsp; Amortization</button>
+  <button data-page="scenario">07 &nbsp; Scenarios</button>
+</aside>
+
+<main class="content">
+
+<section id="fv" class="screen">
+  <div class="kicker">01 / INVESTMENT</div>
+  <h1 class="page-title">Future Value</h1>
+  <p class="description">Calculate what a present investment will be worth after a specified period at an annual rate.</p>
+  <div class="worksheet">
+    <div class="inputs">
+      <div class="field"><label>Principal Amount</label><input id="fvP" type="number" value="100000"></div>
+      <div class="field"><label>Annual Rate</label><input id="fvR" type="number" value="10" step=".01"></div>
+      <div class="field"><label>Time, Years</label><input id="fvT" type="number" value="5" step=".1"></div>
+    </div>
+    <div class="actions"><button class="btn" onclick="fv()">Calculate</button><button class="btn secondary" onclick="resetFV()">Reset</button></div>
+    <div id="fvErr" class="error"></div>
+    <div class="answer"><div class="answer-label">Answer</div><div class="answer-value" id="fvOut">₹1,61,051.00</div><div class="answer-caption">Future value of the investment</div></div>
+    <div class="working"><div class="working-title">WORKING</div><div class="formula" id="fvWork">FV = P(1 + r)ᵗ<br>= ₹1,00,000 × (1 + 0.10)⁵<br>= <span class="underline">₹1,61,051.00</span></div></div>
+    <div class="chart-section"><div class="chart-title">Value Growth</div><div class="chart"><div class="line"><svg viewBox="0 0 500 180" preserveAspectRatio="none"><polyline id="fvLine" points="0,160 100,130 200,100 300,70 400,35 500,5" fill="none" stroke="#285943" stroke-width="3"/></svg></div></div></div>
+  </div>
+</section>
+
+<section id="pv" class="screen hidden">
+  <div class="kicker">02 / DISCOUNTING</div><h1 class="page-title">Present Value</h1>
+  <p class="description">Find the value today of a future amount using a discount rate.</p>
+  <div class="worksheet"><div class="inputs">
+    <div class="field"><label>Future Value</label><input id="pvF" type="number" value="161051"></div>
+    <div class="field"><label>Discount Rate</label><input id="pvR" type="number" value="10" step=".01"></div>
+    <div class="field"><label>Time, Years</label><input id="pvT" type="number" value="5" step=".1"></div>
+  </div><div class="actions"><button class="btn" onclick="pv()">Calculate</button></div>
+  <div class="answer"><div class="answer-label">Answer</div><div class="answer-value" id="pvOut">₹1,00,000.00</div><div class="answer-caption">Present value today</div></div>
+  <div class="working"><div class="working-title">WORKING</div><div class="formula" id="pvWork">PV = FV / (1 + r)ᵗ</div></div></div>
+</section>
+
+<section id="si" class="screen hidden">
+  <div class="kicker">03 / INTEREST</div><h1 class="page-title">Simple Interest</h1>
+  <p class="description">Calculate interest earned on the original principal without compounding.</p>
+  <div class="worksheet"><div class="inputs">
+    <div class="field"><label>Principal</label><input id="siP" type="number" value="100000"></div>
+    <div class="field"><label>Interest Rate</label><input id="siR" type="number" value="8" step=".01"></div>
+    <div class="field"><label>Time, Years</label><input id="siT" type="number" value="3" step=".1"></div>
+  </div><div class="actions"><button class="btn" onclick="si()">Calculate</button></div>
+  <div class="answer"><div class="answer-label">Interest Earned</div><div class="answer-value" id="siI">₹24,000.00</div><div class="answer-caption">Maturity value: <span id="siM">₹1,24,000.00</span></div></div>
+  <div class="working"><div class="working-title">WORKING</div><div class="formula">SI = P × r × t<br>= ₹1,00,000 × 0.08 × 3<br>= <span class="underline">₹24,000.00</span></div></div></div>
+</section>
+
+<section id="ci" class="screen hidden">
+  <div class="kicker">04 / COMPOUNDING</div><h1 class="page-title">Compound Interest</h1>
+  <p class="description">See how interest grows when earnings are added back to the principal.</p>
+  <div class="worksheet"><div class="inputs">
+    <div class="field"><label>Principal</label><input id="ciP" type="number" value="100000"></div>
+    <div class="field"><label>Annual Rate</label><input id="ciR" type="number" value="10" step=".01"></div>
+    <div class="field"><label>Time, Years</label><input id="ciT" type="number" value="5" step=".1"></div>
+    <div class="field"><label>Compounding</label><select id="ciN"><option value="1">Annually</option><option value="2">Half-yearly</option><option value="4" selected>Quarterly</option><option value="12">Monthly</option></select></div>
+  </div><div class="actions"><button class="btn" onclick="ci()">Calculate</button></div>
+  <div class="answer"><div class="answer-label">Compound Interest</div><div class="answer-value" id="ciI">₹64,361.82</div><div class="answer-caption">Maturity value: <span id="ciM">₹1,64,361.82</span></div></div>
+  <div class="working"><div class="working-title">WORKING</div><div class="formula" id="ciWork">A = P(1 + r/n)ⁿᵗ</div></div>
+  <div class="chart-section"><div class="chart-title">Growth over time</div><div class="chart"><div class="line"><svg viewBox="0 0 500 180" preserveAspectRatio="none"><polyline points="0,165 80,145 160,120 250,95 350,55 500,8" fill="none" stroke="#285943" stroke-width="3"/></svg></div></div></div></div>
+</section>
+
+<section id="emi" class="screen hidden">
+  <div class="kicker">05 / LOAN</div><h1 class="page-title">EMI Calculator</h1>
+  <p class="description">Calculate the fixed monthly payment for a reducing-balance loan.</p>
+  <div class="worksheet"><div class="inputs">
+    <div class="field"><label>Loan Amount</label><input id="eP" type="number" value="1000000"></div>
+    <div class="field"><label>Annual Rate</label><input id="eR" type="number" value="10" step=".01"></div>
+    <div class="field"><label>Tenure, Years</label><input id="eT" type="number" value="5" step=".1"></div>
+  </div><div class="actions"><button class="btn" onclick="emi()">Calculate EMI</button></div>
+  <div class="answer"><div class="answer-label">Monthly EMI</div><div class="answer-value" id="eOut">₹21,247.04</div><div class="answer-caption">60 monthly payments</div></div>
+  <div class="summary"><div><small>Total Payment</small><strong id="eTotal">₹12,74,822.36</strong></div><div><small>Total Interest</small><strong id="eInterest">₹2,74,822.36</strong></div><div><small>Principal</small><strong id="ePrincipal">₹10,00,000.00</strong></div></div>
+  <div class="working"><div class="working-title">WORKING</div><div class="formula">Monthly rate = annual rate / 12<br>Number of payments = tenure × 12<br><br>EMI = P × r × (1+r)ⁿ / ((1+r)ⁿ − 1)</div></div>
+  <div class="note">The EMI is calculated using a standard reducing-balance loan formula. Use the amortization section to inspect each payment.</div>
+  </div>
+</section>
+
+<section id="amort" class="screen hidden">
+  <div class="kicker">06 / REPAYMENT</div><h1 class="page-title">Loan Amortization</h1>
+  <p class="description">Generate the complete month-by-month repayment ledger for a loan.</p>
+  <div class="worksheet"><div class="inputs">
+    <div class="field"><label>Loan Amount</label><input id="aP" type="number" value="1000000"></div>
+    <div class="field"><label>Annual Rate</label><input id="aR" type="number" value="10"></div>
+    <div class="field"><label>Tenure, Years</label><input id="aT" type="number" value="5"></div>
+  </div><div class="actions"><button class="btn" onclick="amort()">Generate Ledger</button></div>
+  <div class="summary"><div><small>Monthly EMI</small><strong id="aEmi">₹21,247.04</strong></div><div><small>Total Interest</small><strong id="aInt">₹2,74,822.36</strong></div><div><small>Payments</small><strong id="aMonths">60</strong></div></div>
+  <div class="chart-section"><div class="chart-title">Outstanding Balance</div><div class="chart"><div class="line"><svg viewBox="0 0 500 180" preserveAspectRatio="none"><polyline points="0,10 80,35 160,65 250,100 350,135 500,172" fill="none" stroke="#285943" stroke-width="3"/></svg></div></div></div>
+  <div style="overflow:auto;margin-top:24px"><table id="amortTable" style="width:100%;border-collapse:collapse;font-family:'IBM Plex Mono';font-size:11px"><thead><tr><th style="text-align:left;border-bottom:1px solid #777e77;padding:9px">Month</th><th style="text-align:right;border-bottom:1px solid #777e77;padding:9px">Opening</th><th style="text-align:right;border-bottom:1px solid #777e77;padding:9px">Interest</th><th style="text-align:right;border-bottom:1px solid #777e77;padding:9px">Principal</th><th style="text-align:right;border-bottom:1px solid #777e77;padding:9px">EMI</th><th style="text-align:right;border-bottom:1px solid #777e77;padding:9px">Closing</th></tr></thead><tbody></tbody></table></div>
+  </div>
+</section>
+
+<section id="scenario" class="screen hidden">
+  <div class="kicker">07 / COMPARISON</div><h1 class="page-title">Scenario Analysis</h1>
+  <p class="description">Compare the same loan at four interest rates required for the assignment.</p>
+  <div class="worksheet"><div class="inputs">
+    <div class="field"><label>Loan Amount</label><input id="sP" type="number" value="1000000"></div>
+    <div class="field"><label>Tenure, Years</label><input id="sT" type="number" value="5"></div>
+  </div><div class="actions"><button class="btn" onclick="scenario()">Compare</button></div>
+  <div id="scenarioOut"></div>
+  <div class="chart-section"><div class="chart-title">Total Interest by Rate</div><div id="bars" style="margin-top:18px"></div></div>
+  </div>
+</section>
+
+</main>
+</div>
+<footer class="footer"><span>FinSight · Financial Calculation Notebook</span><span>BS3210 · Assignment 1</span></footer>
+</div>
+
+<script>
+const money=n=>new Intl.NumberFormat('en-IN',{style:'currency',currency:'INR',maximumFractionDigits:2}).format(n);
+function v(id){return parseFloat(document.getElementById(id).value)}
+function set(id,x){document.getElementById(id).textContent=x}
+function openPage(id){document.querySelectorAll('.screen').forEach(x=>x.classList.add('hidden'));document.getElementById(id).classList.remove('hidden');document.querySelectorAll('.nav button').forEach(x=>x.classList.toggle('active',x.dataset.page===id))}
+document.querySelectorAll('.nav button').forEach(b=>b.onclick=()=>openPage(b.dataset.page));
+function fv(){let P=v('fvP'),r=v('fvR')/100,t=v('fvT'),A=P*Math.pow(1+r,t);set('fvOut',money(A));document.getElementById('fvWork').innerHTML=`FV = P(1 + r)ᵗ<br>= ${money(P)} × (1 + ${r.toFixed(2)})ᵗ<br>= <span class="underline">${money(A)}</span>`}
+function resetFV(){document.getElementById('fvP').value=100000;document.getElementById('fvR').value=10;document.getElementById('fvT').value=5;fv()}
+function pv(){let F=v('pvF'),r=v('pvR')/100,t=v('pvT'),P=F/Math.pow(1+r,t);set('pvOut',money(P));document.getElementById('pvWork').innerHTML=`PV = FV / (1 + r)ᵗ<br>= ${money(F)} / (1 + ${r.toFixed(2)})ᵗ<br>= <span class="underline">${money(P)}</span>`}
+function si(){let P=v('siP'),I=P*v('siR')/100*v('siT');set('siI',money(I));set('siM',money(P+I))}
+function ci(){let P=v('ciP'),r=v('ciR')/100,t=v('ciT'),n=v('ciN'),A=P*Math.pow(1+r/n,n*t);set('ciI',money(A-P));set('ciM',money(A));document.getElementById('ciWork').innerHTML=`A = P(1 + r/n)ⁿᵗ<br>= ${money(P)} × (1 + ${r.toFixed(4)}/${n})^(${n} × ${t})<br>= <span class="underline">${money(A)}</span>`}
+function calcEmi(P,R,T){let n=Math.round(T*12),r=R/12/100;if(r===0)return {e:P/n,n};let e=P*r*Math.pow(1+r,n)/(Math.pow(1+r,n)-1);return {e,n}}
+function emi(){let P=v('eP'),R=v('eR'),T=v('eT'),x=calcEmi(P,R,T),total=x.e*x.n;set('eOut',money(x.e));set('eTotal',money(total));set('eInterest',money(total-P));set('ePrincipal',money(P))}
+function amort(){
+ let P=v('aP'),R=v('aR'),T=v('aT'),x=calcEmi(P,R,T),bal=P,r=R/12/100,interestTotal=0,body='';
+ for(let m=1;m<=x.n;m++){let interest=bal*r,principal=x.e-interest,pay=x.e;if(m===x.n){principal=bal;pay=principal+interest}let close=Math.max(0,bal-principal);interestTotal+=interest;body+=`<tr><td style="padding:8px">${m}</td><td style="padding:8px;text-align:right">${money(bal)}</td><td style="padding:8px;text-align:right">${money(interest)}</td><td style="padding:8px;text-align:right">${money(principal)}</td><td style="padding:8px;text-align:right">${money(pay)}</td><td style="padding:8px;text-align:right">${money(close)}</td></tr>`;bal=close}
+ set('aEmi',money(x.e));set('aInt',money(interestTotal));set('aMonths',x.n);document.querySelector('#amortTable tbody').innerHTML=body;
+}
+function scenario(){let P=v('sP'),T=v('sT'),rates=[8,10,12,15],html='<div class="summary">';rates.forEach(r=>{let x=calcEmi(P,r,T),total=x.e*x.n;html+=`<div><small>${r}% Rate</small><strong>${money(x.e)}</strong><small style="margin-top:5px">Interest ${money(total-P)}</small></div>`});html+='</div>';set('scenarioOut',html);
+ let max=0,data=[];rates.forEach(r=>{let x=calcEmi(P,r,T);data.push([r,x.e*x.n-P]);max=Math.max(max,x.e*x.n-P)});
+ document.getElementById('bars').innerHTML=data.map(d=>`<div style="display:grid;grid-template-columns:45px 1fr 105px;gap:10px;align-items:center;margin:11px 0;font-family:'IBM Plex Mono';font-size:12px"><span>${d[0]}%</span><div style="height:18px;background:#ded9cd"><div style="height:18px;width:${d[1]/max*100}%;background:#285943"></div></div><span style="text-align:right">${money(d[1])}</span></div>`).join('')
+}
+fv();pv();si();ci();emi();amort();scenario();
+</script>
+</body>
+</html>

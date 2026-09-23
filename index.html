@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FinSight — Financial Notebook</title>
+<link rel="stylesheet" href="css/notebook.css">
+<script src="js/engine.js"></script>
+</head>
+<body>
+
+<!-- Opening Experience -->
+<div id="introScreen" class="intro-screen">
+  <div class="intro-brand">FIN:SIGHT</div>
+  <h1 class="intro-title">FINANCIAL<br>CALCULATIONS<br>MADE CLEAR.</h1>
+  <p class="intro-desc">A simple workspace for understanding how your money changes over time.</p>
+  <div class="scroll-indicator">↓<br>SCROLL TO BEGIN</div>
+</div>
+
+<div class="page" id="mainPage" style="display:none;">
+<header class="topbar">
+  <div>
+    <div class="brand">FinSight</div>
+    <div class="subtitle">Time Value of Money · Financial Calculation Notebook</div>
+  </div>
+  <div style="display:flex; flex-direction:column; align-items:flex-end;">
+    <button id="themeToggle" class="btn secondary" style="padding: 4px 8px; font-size:11px; margin-bottom:5px;">Toggle Theme</button>
+    <div class="meta">BS3210<br>ASSIGNMENT 01</div>
+  </div>
+</header>
+
+<nav class="primary-nav">
+  <h2>WHAT ARE YOU CALCULATING?</h2>
+  <p class="description" style="margin-top:0;">Choose a calculation to begin.</p>
+  <select id="calcSelector" class="calc-selector">
+    <option value="" disabled selected>[ Select a calculation ▾ ]</option>
+    <option value="fv">01 Future Value</option>
+    <option value="pv">02 Present Value</option>
+    <option value="si">03 Simple Interest</option>
+    <option value="ci">04 Compound Interest</option>
+    <option value="emi">05 EMI Calculation</option>
+    <option value="amort">06 Loan Amortization</option>
+    <option value="scenario">07 Scenario Analysis</option>
+  </select>
+</nav>
+
+<main class="content">
+
+<section id="fv" class="screen">
+  <div class="kicker">01 / INVESTMENT</div>
+  <h1 class="page-title">Future Value</h1>
+  <p class="description">Calculate what a present investment will be worth after a specified period at an annual rate.</p>
+  
+  <div class="presets">
+    <button onclick="applyPreset('fv', {p: 100000, r: 10, t: 5})">₹1L at 10% for 5Y</button>
+    <button onclick="applyPreset('fv', {p: 500000, r: 8.5, t: 10})">₹5L at 8.5% for 10Y</button>
+  </div>
+
+  <div class="worksheet">
+    <div class="inputs">
+      <div class="field"><label>Principal Amount</label><input id="fvP" type="number" value="100000" oninput="liveUpdate('fv')"></div>
+      <div class="field"><label>Annual Rate (%)</label><input id="fvR" type="number" value="10" step=".01" oninput="liveUpdate('fv')"></div>
+      <div class="field"><label>Time, Years</label><input id="fvT" type="number" value="5" step=".1" oninput="liveUpdate('fv')"></div>
+    </div>
+    <div class="actions"><button class="btn" onclick="calcFV()">Calculate</button><button class="btn secondary" onclick="resetForm('fv')">Reset</button></div>
+    <div id="fvErr" class="error"></div>
+    
+    <div class="answer"><div class="answer-label">Answer</div><div class="answer-value" id="fvOut">-</div><div class="answer-caption">Future value of the investment</div></div>
+    <div class="working"><div class="working-title">WORKING</div><div class="formula" id="fvWork">-</div></div>
+    <div class="chart-section"><div class="chart-title">Value Growth</div><div class="chart" id="fvChart"></div></div>
+  </div>
+</section>
+
+<section id="pv" class="screen">
+  <div class="kicker">02 / DISCOUNTING</div><h1 class="page-title">Present Value</h1>
+  <p class="description">Find the value today of a future amount using a discount rate.</p>
+  <div class="worksheet"><div class="inputs">
+    <div class="field"><label>Future Value</label><input id="pvF" type="number" value="161051" oninput="liveUpdate('pv')"></div>
+    <div class="field"><label>Discount Rate (%)</label><input id="pvR" type="number" value="10" step=".01" oninput="liveUpdate('pv')"></div>
+    <div class="field"><label>Time, Years</label><input id="pvT" type="number" value="5" step=".1" oninput="liveUpdate('pv')"></div>
+  </div><div class="actions"><button class="btn" onclick="calcPV()">Calculate</button></div>
+  <div id="pvErr" class="error"></div>
+  <div class="answer"><div class="answer-label">Answer</div><div class="answer-value" id="pvOut">-</div><div class="answer-caption">Present value today</div></div>
+  <div class="working"><div class="working-title">WORKING</div><div class="formula" id="pvWork">-</div></div>
+  <div class="chart-section"><div class="chart-title">Discounting Curve</div><div class="chart" id="pvChart"></div></div></div>
+</section>
+
+<section id="si" class="screen">
+  <div class="kicker">03 / INTEREST</div><h1 class="page-title">Simple Interest</h1>
+  <p class="description">Calculate interest earned on the original principal without compounding.</p>
+  <div class="worksheet"><div class="inputs">
+    <div class="field"><label>Principal</label><input id="siP" type="number" value="100000" oninput="liveUpdate('si')"></div>
+    <div class="field"><label>Interest Rate (%)</label><input id="siR" type="number" value="8" step=".01" oninput="liveUpdate('si')"></div>
+    <div class="field"><label>Time, Years</label><input id="siT" type="number" value="3" step=".1" oninput="liveUpdate('si')"></div>
+  </div><div class="actions"><button class="btn" onclick="calcSI()">Calculate</button></div>
+  <div id="siErr" class="error"></div>
+  <div class="answer"><div class="answer-label">Interest Earned</div><div class="answer-value" id="siI">-</div><div class="answer-caption">Maturity value: <span id="siM">-</span></div></div>
+  <div class="working"><div class="working-title">WORKING</div><div class="formula" id="siWork">-</div></div>
+  <div class="chart-section"><div class="chart-title">Interest Accumulation</div><div class="chart" id="siChart"></div></div></div>
+</section>
+
+<section id="ci" class="screen">
+  <div class="kicker">04 / COMPOUNDING</div><h1 class="page-title">Compound Interest</h1>
+  <p class="description">See how interest grows when earnings are added back to the principal.</p>
+  <div class="worksheet"><div class="inputs">
+    <div class="field"><label>Principal</label><input id="ciP" type="number" value="100000" oninput="liveUpdate('ci')"></div>
+    <div class="field"><label>Annual Rate (%)</label><input id="ciR" type="number" value="10" step=".01" oninput="liveUpdate('ci')"></div>
+    <div class="field"><label>Time, Years</label><input id="ciT" type="number" value="5" step=".1" oninput="liveUpdate('ci')"></div>
+    <div class="field"><label>Compounding</label><select id="ciN" onchange="liveUpdate('ci')"><option value="1">Annually</option><option value="2">Half-yearly</option><option value="4" selected>Quarterly</option><option value="12">Monthly</option></select></div>
+  </div><div class="actions"><button class="btn" onclick="calcCI()">Calculate</button></div>
+  <div id="ciErr" class="error"></div>
+  <div class="answer"><div class="answer-label">Compound Interest</div><div class="answer-value" id="ciI">-</div><div class="answer-caption">Maturity value: <span id="ciM">-</span></div></div>
+  <div class="working"><div class="working-title">WORKING</div><div class="formula" id="ciWork">-</div></div>
+  <div class="chart-section"><div class="chart-title">Growth over time</div><div class="chart" id="ciChart"></div></div></div>
+</section>
+
+<section id="emi" class="screen">
+  <div class="kicker">05 / LOAN</div><h1 class="page-title">EMI Calculator</h1>
+  <p class="description">Calculate the fixed monthly payment for a reducing-balance loan.</p>
+  
+  <div class="presets">
+    <button onclick="applyPreset('emi', {p: 500000, r: 8.5, t: 10})">₹5L Loan at 8.5% for 10Y</button>
+    <button onclick="applyPreset('emi', {p: 1000000, r: 9, t: 20})">₹10L Loan at 9% for 20Y</button>
+  </div>
+
+  <div class="worksheet"><div class="inputs">
+    <div class="field"><label>Loan Amount</label><input id="eP" type="number" value="1000000" oninput="liveUpdate('emi')"></div>
+    <div class="field"><label>Annual Rate (%)</label><input id="eR" type="number" value="10" step=".01" oninput="liveUpdate('emi')"></div>
+    <div class="field"><label>Tenure, Years</label><input id="eT" type="number" value="5" step=".1" oninput="liveUpdate('emi')"></div>
+  </div><div class="actions"><button class="btn" onclick="calcEMI()">Calculate EMI</button> <button class="btn secondary" onclick="goToAmortization()">View Amortization Schedule</button></div>
+  <div id="emiErr" class="error"></div>
+  <div style="margin-top:25px; padding:20px 0; border-top:1px solid var(--rule); border-bottom:1px solid var(--rule);">
+    <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap:20px 30px;">
+      <div>
+        <div style="font-size:11px; text-transform:uppercase; letter-spacing:.12em; color:var(--muted); font-weight:700;">TOTAL MONTHLY PAYMENT</div>
+        <div id="emiResMonthly" style="font-family:'IBM Plex Mono'; font-size:26px; font-weight:600; color:var(--accent); margin-top:5px;">-</div>
+      </div>
+      <div>
+        <div style="font-size:11px; text-transform:uppercase; letter-spacing:.12em; color:var(--muted); font-weight:700;">LOAN AMOUNT</div>
+        <div id="emiResLoan" style="font-family:'IBM Plex Mono'; font-size:26px; font-weight:600; color:var(--ink); margin-top:5px;">-</div>
+      </div>
+      <div>
+        <div style="font-size:11px; text-transform:uppercase; letter-spacing:.12em; color:var(--muted); font-weight:700;">TOTAL INTEREST PAID</div>
+        <div id="emiResInterest" style="font-family:'IBM Plex Mono'; font-size:26px; font-weight:600; color:var(--ink); margin-top:5px;">-</div>
+      </div>
+      <div>
+        <div style="font-size:11px; text-transform:uppercase; letter-spacing:.12em; color:var(--muted); font-weight:700;">TOTAL COST OF LOAN</div>
+        <div id="emiResTotal" style="font-family:'IBM Plex Mono'; font-size:26px; font-weight:600; color:var(--ink); margin-top:5px;">-</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="chart-section" style="margin-top:25px;">
+    <div class="chart-title">Payment Breakdown (Principal vs Interest)</div>
+    <div class="chart" id="emiPaymentChart" style="height:250px; margin-top:12px;"></div>
+  </div>
+
+  <div class="working"><div class="working-title">WORKING</div><div class="formula" id="emiWork">-</div></div>
+  <div class="note">The EMI is calculated using a standard reducing-balance loan formula. Use the amortization section to inspect each payment.</div>
+  </div>
+</section>
+
+<section id="amort" class="screen">
+  <div class="kicker">06 / REPAYMENT</div><h1 class="page-title">Loan Amortization</h1>
+  <p class="description">Generate the complete month-by-month repayment ledger for a loan.</p>
+  <div class="worksheet"><div class="inputs">
+    <div class="field"><label>Loan Amount</label><input id="aP" type="number" value="1000000" oninput="liveUpdate('amort')"></div>
+    <div class="field"><label>Annual Rate (%)</label><input id="aR" type="number" value="10" oninput="liveUpdate('amort')"></div>
+    <div class="field"><label>Tenure, Years</label><input id="aT" type="number" value="5" oninput="liveUpdate('amort')"></div>
+  </div><div class="actions"><button class="btn" onclick="calcAmort()">Generate Ledger</button></div>
+  <div id="amortErr" class="error"></div>
+  <div class="summary"><div><small>Monthly EMI</small><strong id="aEmi">-</strong></div><div><small>Total Interest</small><strong id="aInt">-</strong></div><div><small>Payments</small><strong id="aMonths">-</strong></div></div>
+  <div class="chart-section"><div class="chart-title">Outstanding Balance</div><div class="chart" id="amortChart"></div></div>
+  <div style="overflow:auto;margin-top:24px"><table id="amortTable" style="width:100%;border-collapse:collapse;font-family:'IBM Plex Mono';font-size:11px"><thead><tr><th style="text-align:left;border-bottom:1px solid var(--rule);padding:9px">Month</th><th style="text-align:right;border-bottom:1px solid var(--rule);padding:9px">Opening</th><th style="text-align:right;border-bottom:1px solid var(--rule);padding:9px">Interest</th><th style="text-align:right;border-bottom:1px solid var(--rule);padding:9px">Principal</th><th style="text-align:right;border-bottom:1px solid var(--rule);padding:9px">EMI</th><th style="text-align:right;border-bottom:1px solid var(--rule);padding:9px">Closing</th></tr></thead><tbody></tbody></table></div>
+  </div>
+</section>
+
+<section id="scenario" class="screen">
+  <div class="kicker">07 / COMPARISON</div><h1 class="page-title">Scenario Analysis</h1>
+  <p class="description">Compare the same loan at 8%, 10%, 12%, and 15% interest rates.</p>
+  <div class="worksheet"><div class="inputs">
+    <div class="field"><label>Loan Amount</label><input id="sP" type="number" value="1000000" oninput="liveUpdate('scenario')"></div>
+    <div class="field"><label>Tenure, Years</label><input id="sT" type="number" value="5" oninput="liveUpdate('scenario')"></div>
+  </div><div class="actions"><button class="btn" onclick="calcScenario()">Compare</button></div>
+  <div id="scenarioErr" class="error"></div>
+  <div id="scenarioOut"></div>
+  <div class="chart-section"><div class="chart-title">Total Interest by Rate</div><div id="scenarioChart" style="margin-top:12px;"></div></div>
+  </div>
+</section>
+
+<div class="history-section">
+  <div class="chart-title">RECENT CALCULATIONS</div>
+  <div id="historyList"></div>
+</div>
+
+</main>
+</div>
+<footer class="footer" style="display:none;" id="footerBar"><span>FinSight · Financial Calculation Notebook</span><span>BS3210 · Assignment 1</span></footer>
+
+<!-- Global Error Screen -->
+<div id="globalErrorScreen" style="display:none; position:fixed; inset:0; background:var(--paper); z-index:999; flex-direction:column; justify-content:center; align-items:center; text-align:center; padding:20px;">
+  <div class="kicker" style="color:var(--red); font-size:16px;">CRITICAL ERROR</div>
+  <h1 class="page-title" style="margin: 20px 0;">Something went wrong.</h1>
+  <p class="description" id="globalErrorMsg" style="max-width:400px; margin-bottom:40px;">An unexpected error occurred in the application.</p>
+  <div style="display:flex; gap:10px;">
+    <button class="btn" onclick="window.location.reload()">Reload Application</button>
+    <button class="btn secondary" onclick="document.getElementById('globalErrorScreen').style.display='none'">Dismiss</button>
+  </div>
+  <div class="meta" style="margin-top:40px;">REF: <span id="globalErrorRef"></span></div>
+</div>
+
+<script src="js/app.js"></script>
+</body>
+</html>

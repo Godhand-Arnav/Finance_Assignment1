@@ -1,0 +1,26 @@
+{
+  "FinSight_Architecture_UIUX_Guide.md": {
+    "mtime": 1790163034.2521033,
+    "seen": 1790164107.8529227,
+    "ast_hash": "7b01d5a8a4bc036748666923c7de521e",
+    "semantic_hash": "7b01d5a8a4bc036748666923c7de521e"
+  },
+  "FinSight_Design.md": {
+    "mtime": 1790163154.6883316,
+    "seen": 1790164107.8529263,
+    "ast_hash": "c6fe9f0fe4353c20422bac356c18d579",
+    "semantic_hash": "c6fe9f0fe4353c20422bac356c18d579"
+  },
+  "FinSight_Notebook_Example.html": {
+    "mtime": 1790163275.9381993,
+    "seen": 1790164107.8529274,
+    "ast_hash": "d6d10650d68714b93071a1b7c41fe138",
+    "semantic_hash": "d6d10650d68714b93071a1b7c41fe138"
+  },
+  "FinSight_TVM_Calculator_PRD.md": {
+    "mtime": 1790163260.814983,
+    "seen": 1790164107.8529282,
+    "ast_hash": "c444d48cc466462b36f8887471c244e4",
+    "semantic_hash": "c444d48cc466462b36f8887471c244e4"
+  }
+}

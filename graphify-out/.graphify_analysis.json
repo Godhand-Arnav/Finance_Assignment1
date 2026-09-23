@@ -1,0 +1,116 @@
+{
+  "communities": {
+    "0": [
+      "finsight_notebook_example_amort",
+      "finsight_notebook_example_calcemi",
+      "finsight_notebook_example_emi",
+      "finsight_notebook_example_scenario"
+    ],
+    "1": [
+      "finsight_architecture_uiux_guide_calculateemi",
+      "finsight_architecture_uiux_guide_calculatescenario",
+      "finsight_architecture_uiux_guide_generateamortization"
+    ],
+    "2": [
+      "finsight_architecture_uiux_guide_calculatefuturevalue",
+      "finsight_architecture_uiux_guide_financial_engine",
+      "finsight_notebook_example_fv"
+    ],
+    "3": [
+      "finsight_design_color_palette",
+      "finsight_design_design_system",
+      "finsight_notebook_example_html"
+    ],
+    "4": [
+      "finsight_architecture_uiux_guide_product_definition",
+      "finsight_tvm_calculator_prd_product_goals"
+    ]
+  },
+  "cohesion": {
+    "0": 0.5,
+    "1": 0.6666666666666666,
+    "2": 0.6666666666666666,
+    "3": 0.6666666666666666,
+    "4": 1.0
+  },
+  "gods": [
+    {
+      "id": "finsight_notebook_example_calcemi",
+      "label": "calcEmi()",
+      "degree": 3
+    },
+    {
+      "id": "finsight_architecture_uiux_guide_calculatefuturevalue",
+      "label": "calculateFutureValue",
+      "degree": 2
+    },
+    {
+      "id": "finsight_architecture_uiux_guide_calculateemi",
+      "label": "calculateEMI",
+      "degree": 2
+    },
+    {
+      "id": "finsight_design_design_system",
+      "label": "FinSight Design System",
+      "degree": 2
+    },
+    {
+      "id": "finsight_architecture_uiux_guide_product_definition",
+      "label": "FinSight Product Definition",
+      "degree": 1
+    },
+    {
+      "id": "finsight_architecture_uiux_guide_financial_engine",
+      "label": "Financial Engine",
+      "degree": 1
+    },
+    {
+      "id": "finsight_architecture_uiux_guide_generateamortization",
+      "label": "generateAmortization",
+      "degree": 1
+    },
+    {
+      "id": "finsight_architecture_uiux_guide_calculatescenario",
+      "label": "calculateScenario",
+      "degree": 1
+    },
+    {
+      "id": "finsight_design_color_palette",
+      "label": "Notebook Color Palette",
+      "degree": 1
+    },
+    {
+      "id": "finsight_notebook_example_html",
+      "label": "FinSight Notebook Example",
+      "degree": 1
+    }
+  ],
+  "surprises": [
+    {
+      "source": "FinSight Product Goals",
+      "target": "FinSight Product Definition",
+      "source_files": [
+        "FinSight_TVM_Calculator_PRD.md",
+        "FinSight_Architecture_UIUX_Guide.md"
+      ],
+      "confidence": "EXTRACTED",
+      "relation": "semantically_similar_to",
+      "why": "connects across different repos/directories; semantically similar concepts with no structural link"
+    },
+    {
+      "source": "FinSight Notebook Example",
+      "target": "FinSight Design System",
+      "source_files": [
+        "FinSight_Notebook_Example.html",
+        "FinSight_Design.md"
+      ],
+      "confidence": "EXTRACTED",
+      "relation": "implements",
+      "why": "connects across different repos/directories"
+    }
+  ],
+  "tokens": {
+    "input": 21423,
+    "output": 1993
+  }
+}
