@@ -4,9 +4,37 @@ const FinSightEngine = require('../js/engine');
 function runTests() {
     console.log("Running FinSightEngine Tests...\n");
 
-    // Test 1: Future Value
-    let result = FinSightEngine.calculateFutureValue({ principal: 100000, rate: 10, years: 5 });
-    assert(Math.abs(result.value - 161051) < 1, "FV should be approx 161051");
+    // Test 1: Future Value Lump Sum
+    let result = FinSightEngine.calculateFutureValueLumpSum({ principal: 100000, rate: 10, years: 5 });
+    assert(Math.abs(result.value - 161051) < 1, "FV Lump Sum should be approx 161051");
+
+    // Test 1b: Ordinary Annuity
+    result = FinSightEngine.calculateFutureValueOrdinaryAnnuity({ pmt: 10000, rate: 10, periods: 5 });
+    assert(Math.abs(result.value - 61051) < 1, "FV Ordinary Annuity should be approx 61051");
+
+    // Test 1c: Ordinary Annuity 0% interest
+    result = FinSightEngine.calculateFutureValueOrdinaryAnnuity({ pmt: 10000, rate: 0, periods: 5 });
+    assert.strictEqual(result.value, 50000, "FV Ordinary Annuity at 0% should be PMT * n");
+
+    // Test 1d: Annuity Due
+    result = FinSightEngine.calculateFutureValueAnnuityDue({ pmt: 10000, rate: 10, periods: 5 });
+    assert(Math.abs(result.value - 67156.1) < 1, "FV Annuity Due should be approx 67156.1");
+
+    // Test 1e: Annuity Due 0% interest
+    result = FinSightEngine.calculateFutureValueAnnuityDue({ pmt: 10000, rate: 0, periods: 5 });
+    assert.strictEqual(result.value, 50000, "FV Annuity Due at 0% should be PMT * n");
+
+    // Test 1f: Deferred Annuity
+    result = FinSightEngine.calculateFutureValueDeferredAnnuity({ pmt: 10000, rate: 10, periods: 5, deferralPeriods: 2 });
+    assert(Math.abs(result.value - 73871.71) < 1, "FV Deferred Annuity should be approx 73871.71");
+
+    // Test 1g: Growing Annuity (r != g)
+    result = FinSightEngine.calculateFutureValueGrowingAnnuity({ pmt: 10000, rate: 10, growthRate: 5, periods: 5 });
+    assert(Math.abs(result.value - 66845.69) < 1, "FV Growing Annuity (r!=g) should be approx 66845.69");
+
+    // Test 1h: Growing Annuity (r = g)
+    result = FinSightEngine.calculateFutureValueGrowingAnnuity({ pmt: 10000, rate: 10, growthRate: 10, periods: 5 });
+    assert(Math.abs(result.value - 73205) < 1, "FV Growing Annuity (r=g) should be approx 73205");
 
     // Test 2: Present Value
     result = FinSightEngine.calculatePresentValue({ futureValue: 161051, rate: 10, years: 5 });
@@ -45,12 +73,16 @@ function runTests() {
 
     // Test 8: Invalid Inputs
     assert.throws(() => {
-        FinSightEngine.calculateFutureValue({ principal: -10000, rate: 10, years: 5 });
-    }, /greater than 0/, "Should throw error on negative principal");
+        FinSightEngine.calculateFutureValueLumpSum({ principal: -10000, rate: 10, years: 5 });
+    }, /non-negative/, "Should throw error on negative principal");
 
     assert.throws(() => {
         FinSightEngine.calculateEMI({ loanAmount: 50000, rate: -5, tenureMonths: 12 });
     }, /non-negative/, "Should throw error on negative rate");
+
+    assert.throws(() => {
+        FinSightEngine.calculateFutureValueGrowingAnnuity({ pmt: 10000, rate: 10, growthRate: -150, periods: 5 });
+    }, /greater than -100%/, "Should throw error on invalid growth rate");
 
     // Test 9: Currency formatting
     const formatted = FinSightEngine.formatCurrency(1230960);

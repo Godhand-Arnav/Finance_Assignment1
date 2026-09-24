@@ -49,25 +49,94 @@
 <section id="fv" class="screen">
   <div class="kicker">01 / INVESTMENT</div>
   <h1 class="page-title">Future Value</h1>
-  <p class="description">Calculate what a present investment will be worth after a specified period at an annual rate.</p>
-  
-  <div class="presets">
-    <button onclick="applyPreset('fv', {p: 100000, r: 10, t: 5})">₹1L at 10% for 5Y</button>
-    <button onclick="applyPreset('fv', {p: 500000, r: 8.5, t: 10})">₹5L at 8.5% for 10Y</button>
-  </div>
+  <p class="description" id="fvDesc">Calculate what a present investment will be worth after a specified period at an annual rate.</p>
 
   <div class="worksheet">
-    <div class="inputs">
-      <div class="field"><label>Principal Amount</label><input id="fvP" type="number" value="100000" oninput="liveUpdate('fv')"></div>
-      <div class="field"><label>Annual Rate (%)</label><input id="fvR" type="number" value="10" step=".01" oninput="liveUpdate('fv')"></div>
-      <div class="field"><label>Time, Years</label><input id="fvT" type="number" value="5" step=".1" oninput="liveUpdate('fv')"></div>
+    <!-- Calculation Type Selection -->
+    <div style="margin-bottom: 22px;">
+      <label style="display:block; font-size:11px; text-transform:uppercase; letter-spacing:.08em; color:var(--muted); margin-bottom:8px; font-weight:700;">CALCULATION TYPE</label>
+      <div style="display:flex; gap:20px; align-items:center;">
+        <label style="cursor:pointer; display:flex; align-items:center; gap:6px; font-family:'IBM Plex Sans'; font-size:14px; font-weight:500;">
+          <input type="radio" name="fvCalcType" value="lump" checked onchange="onFVTypeChange()"> Lump Sum
+        </label>
+        <label style="cursor:pointer; display:flex; align-items:center; gap:6px; font-family:'IBM Plex Sans'; font-size:14px; font-weight:500;">
+          <input type="radio" name="fvCalcType" value="annuity" onchange="onFVTypeChange()"> Annuity
+        </label>
+      </div>
     </div>
-    <div class="actions"><button class="btn" onclick="calcFV()">Calculate</button><button class="btn secondary" onclick="resetForm('fv')">Reset</button></div>
+
+    <!-- Annuity Type Selection -->
+    <div id="fvAnnuityGroup" style="margin-bottom: 22px; display: none; padding-top: 16px; border-top: 1px dashed var(--rule);">
+      <label style="display:block; font-size:11px; text-transform:uppercase; letter-spacing:.08em; color:var(--muted); margin-bottom:8px; font-weight:700;">ANNUITY TYPE</label>
+      <div style="display:flex; gap:16px; flex-wrap:wrap; align-items:center;">
+        <label style="cursor:pointer; display:flex; align-items:center; gap:6px; font-family:'IBM Plex Sans'; font-size:14px;">
+          <input type="radio" name="fvAnnuityType" value="ordinary" checked onchange="onFVAnnuityTypeChange()"> Ordinary Annuity
+        </label>
+        <label style="cursor:pointer; display:flex; align-items:center; gap:6px; font-family:'IBM Plex Sans'; font-size:14px;">
+          <input type="radio" name="fvAnnuityType" value="due" onchange="onFVAnnuityTypeChange()"> Annuity Due
+        </label>
+        <label style="cursor:pointer; display:flex; align-items:center; gap:6px; font-family:'IBM Plex Sans'; font-size:14px;">
+          <input type="radio" name="fvAnnuityType" value="deferred" onchange="onFVAnnuityTypeChange()"> Deferred Annuity
+        </label>
+        <label style="cursor:pointer; display:flex; align-items:center; gap:6px; font-family:'IBM Plex Sans'; font-size:14px;">
+          <input type="radio" name="fvAnnuityType" value="growing" onchange="onFVAnnuityTypeChange()"> Growing Annuity
+        </label>
+      </div>
+      <div id="fvTimingDesc" class="note" style="margin-top:12px; margin-bottom:0; display:none;"></div>
+    </div>
+
+    <div class="presets" id="fvPresets">
+      <button onclick="applyPreset('fv', {p: 100000, r: 10, t: 5})">₹1L at 10% for 5Y</button>
+      <button onclick="applyPreset('fv', {p: 500000, r: 8.5, t: 10})">₹5L at 8.5% for 10Y</button>
+    </div>
+
+    <div class="inputs">
+      <div class="field" id="fvFieldP">
+        <label id="fvLabelP">Principal Amount</label>
+        <input id="fvP" type="number" value="100000" oninput="liveUpdate('fv')">
+      </div>
+      <div class="field" id="fvFieldPMT" style="display:none;">
+        <label id="fvLabelPMT">Periodic Payment (PMT)</label>
+        <input id="fvPMT" type="number" value="10000" oninput="liveUpdate('fv')">
+      </div>
+      <div class="field" id="fvFieldR">
+        <label id="fvLabelR">Interest Rate per Period (%)</label>
+        <input id="fvR" type="number" value="10" step=".01" oninput="liveUpdate('fv')">
+      </div>
+      <div class="field" id="fvFieldG" style="display:none;">
+        <label id="fvLabelG">Growth Rate per Period (%)</label>
+        <input id="fvG" type="number" value="5" step=".01" oninput="liveUpdate('fv')">
+      </div>
+      <div class="field" id="fvFieldT">
+        <label id="fvLabelT">Number of Periods</label>
+        <input id="fvT" type="number" value="5" step=".1" oninput="liveUpdate('fv')">
+      </div>
+      <div class="field" id="fvFieldD" style="display:none;">
+        <label id="fvLabelD">Deferral Period (d)</label>
+        <input id="fvD" type="number" value="2" step="1" oninput="liveUpdate('fv')">
+      </div>
+    </div>
+
+    <div class="actions">
+      <button class="btn" onclick="calcFV()">Calculate</button>
+      <button class="btn secondary" onclick="resetForm('fv')">Reset</button>
+    </div>
     <div id="fvErr" class="error"></div>
     
-    <div class="answer"><div class="answer-label">Answer</div><div class="answer-value" id="fvOut">-</div><div class="answer-caption">Future value of the investment</div></div>
-    <div class="working"><div class="working-title">WORKING</div><div class="formula" id="fvWork">-</div></div>
-    <div class="chart-section"><div class="chart-title">Value Growth</div><div class="chart" id="fvChart"></div></div>
+    <div class="answer">
+      <div class="answer-label">Answer</div>
+      <div class="answer-value" id="fvOut">-</div>
+      <div class="answer-caption" id="fvCaption">Future value of the investment</div>
+    </div>
+    <div class="working">
+      <div class="working-title">WORKING</div>
+      <div class="formula" id="fvFormula" style="font-weight:600; color:var(--accent); margin-top:8px; margin-bottom:4px;"></div>
+      <div class="formula" id="fvWork">-</div>
+    </div>
+    <div class="chart-section">
+      <div class="chart-title">Value Growth</div>
+      <div class="chart" id="fvChart"></div>
+    </div>
   </div>
 </section>
 

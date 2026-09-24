@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>FinSight — Financial Notebook</title>
+<title>TVMcalsi — Financial Notebook</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap');
 
@@ -230,8 +230,11 @@ class FinSightEngine {
             if (value === null || value === undefined || isNaN(value)) {
                 throw new Error(`Invalid input: ${key} must be a number.`);
             }
-            if (key === 'principal' && value <= 0) {
-                throw new Error('Enter a value greater than 0 for principal.');
+            if (key === 'principal' && value < 0) {
+                throw new Error('Enter a non-negative value for principal.');
+            }
+            if (key === 'pmt' && value < 0) {
+                throw new Error('Enter a non-negative value for periodic payment.');
             }
             if (key === 'loanAmount' && value <= 0) {
                 throw new Error('Enter a value greater than 0 for loan amount.');
@@ -239,8 +242,17 @@ class FinSightEngine {
             if (key === 'rate' && value < 0) {
                 throw new Error('Enter a non-negative value for interest rate.');
             }
+            if (key === 'growthRate' && value <= -100) {
+                throw new Error('Growth rate must be greater than -100%.');
+            }
             if (key === 'years' && value < 0) {
                 throw new Error('Enter a non-negative value for years.');
+            }
+            if (key === 'periods' && value < 0) {
+                throw new Error('Enter a non-negative value for periods.');
+            }
+            if (key === 'deferralPeriods' && value < 0) {
+                throw new Error('Enter a non-negative value for deferral period.');
             }
             if (key === 'tenure' && value <= 0) {
                 throw new Error('Enter a value greater than 0 for tenure.');
@@ -251,14 +263,134 @@ class FinSightEngine {
         }
     }
 
-    static calculateFutureValue({ principal, rate, years }) {
+    static calculateFutureValueLumpSum({ principal, rate, years }) {
         this.validateInputs({ principal, rate, years });
         const r = rate / 100;
         const value = principal * Math.pow(1 + r, years);
+        if (isNaN(value) || !isFinite(value)) {
+            throw new Error('Calculation result exceeds numeric limits.');
+        }
         return {
             value,
-            formula: 'FV = P(1 + r)^t',
-            working: `FV = ${principal} * (1 + ${r})^${years}`
+            formula: 'FV = P × (1 + r)^n',
+            working: `FV = ${principal} × (1 + ${r})^${years}`
+        };
+    }
+
+    static calculateFutureValue({ principal, rate, years }) {
+        return this.calculateFutureValueLumpSum({ principal, rate, years });
+    }
+
+    static calculateFutureValueOrdinaryAnnuity({ pmt, rate, periods }) {
+        this.validateInputs({ pmt, rate, periods });
+        const r = rate / 100;
+        const n = periods;
+        let value;
+        let working;
+
+        if (r === 0) {
+            value = pmt * n;
+            working = `FV = ${pmt} × ${n}`;
+        } else {
+            value = pmt * ((Math.pow(1 + r, n) - 1) / r);
+            working = `FV = ${pmt} × ((1 + ${r})^${n} − 1) / ${r}`;
+        }
+
+        if (isNaN(value) || !isFinite(value)) {
+            throw new Error('Calculation result exceeds numeric limits.');
+        }
+
+        return {
+            value,
+            formula: 'FV = PMT × ((1 + r)^n − 1) / r',
+            working
+        };
+    }
+
+    static calculateFutureValueAnnuityDue({ pmt, rate, periods }) {
+        this.validateInputs({ pmt, rate, periods });
+        const r = rate / 100;
+        const n = periods;
+        let value;
+        let working;
+
+        if (r === 0) {
+            value = pmt * n;
+            working = `FV = ${pmt} × ${n}`;
+        } else {
+            value = pmt * ((Math.pow(1 + r, n) - 1) / r) * (1 + r);
+            working = `FV = ${pmt} × ((1 + ${r})^${n} − 1) / ${r} × (1 + ${r})`;
+        }
+
+        if (isNaN(value) || !isFinite(value)) {
+            throw new Error('Calculation result exceeds numeric limits.');
+        }
+
+        return {
+            value,
+            formula: 'FV = PMT × ((1 + r)^n − 1) / r × (1 + r)',
+            working
+        };
+    }
+
+    static calculateFutureValueDeferredAnnuity({ pmt, rate, periods, deferralPeriods }) {
+        this.validateInputs({ pmt, rate, periods, deferralPeriods });
+        const r = rate / 100;
+        const n = periods;
+        const d = deferralPeriods;
+        let value;
+        let working;
+
+        if (r === 0) {
+            value = pmt * n;
+            working = `FV = ${pmt} × ${n}`;
+        } else {
+            value = pmt * ((Math.pow(1 + r, n) - 1) / r) * Math.pow(1 + r, d);
+            working = `FV = ${pmt} × ((1 + ${r})^${n} − 1) / ${r} × (1 + ${r})^${d}`;
+        }
+
+        if (isNaN(value) || !isFinite(value)) {
+            throw new Error('Calculation result exceeds numeric limits.');
+        }
+
+        return {
+            value,
+            formula: 'FV = PMT × ((1 + r)^n − 1) / r × (1 + r)^d',
+            working
+        };
+    }
+
+    static calculateFutureValueGrowingAnnuity({ pmt, rate, growthRate, periods }) {
+        this.validateInputs({ pmt, rate, growthRate, periods });
+        const r = rate / 100;
+        const g = growthRate / 100;
+        const n = periods;
+        let value;
+        let formula;
+        let working;
+
+        if (Math.abs(r - g) < 1e-9) {
+            value = pmt * n * Math.pow(1 + r, n - 1);
+            formula = 'FV = PMT × n × (1 + r)^(n − 1)';
+            working = `FV = ${pmt} × ${n} × (1 + ${r})^(${n} − 1)`;
+        } else if (r === 0) {
+            value = pmt * ((Math.pow(1 + g, n) - 1) / g);
+            formula = 'FV = PMT × ((1 + r)^n − (1 + g)^n) / (r − g)';
+            working = `FV = ${pmt} × ((1 + 0)^${n} − (1 + ${g})^${n}) / (0 − ${g})`;
+        } else {
+            value = pmt * ((Math.pow(1 + r, n) - Math.pow(1 + g, n)) / (r - g));
+            formula = 'FV = PMT × ((1 + r)^n − (1 + g)^n) / (r − g)';
+            working = `FV = ${pmt} × ((1 + ${r})^${n} − (1 + ${g})^${n}) / (${r} − ${g})`;
+        }
+
+        if (isNaN(value) || !isFinite(value)) {
+            throw new Error('Calculation result exceeds numeric limits.');
+        }
+
+        return {
+            value,
+            formula,
+            working
         };
     }
 
@@ -398,7 +530,7 @@ if (typeof module !== 'undefined' && module.exports) {
 
 <!-- Opening Experience -->
 <div id="introScreen" class="intro-screen">
-  <div class="intro-brand">FIN:SIGHT</div>
+  <div class="intro-brand">TVMcalsi</div>
   <h1 class="intro-title">FINANCIAL<br>CALCULATIONS<br>MADE CLEAR.</h1>
   <p class="intro-desc">A simple workspace for understanding how your money changes over time.</p>
   <div class="scroll-indicator">↓<br>SCROLL TO BEGIN</div>
@@ -407,7 +539,7 @@ if (typeof module !== 'undefined' && module.exports) {
 <div class="page" id="mainPage" style="display:none;">
 <header class="topbar">
   <div>
-    <div class="brand">FinSight</div>
+    <div class="brand">TVMcalsi</div>
     <div class="subtitle">Time Value of Money · Financial Calculation Notebook</div>
   </div>
   <div style="display:flex; flex-direction:column; align-items:flex-end;">
@@ -436,25 +568,94 @@ if (typeof module !== 'undefined' && module.exports) {
 <section id="fv" class="screen">
   <div class="kicker">01 / INVESTMENT</div>
   <h1 class="page-title">Future Value</h1>
-  <p class="description">Calculate what a present investment will be worth after a specified period at an annual rate.</p>
-  
-  <div class="presets">
-    <button onclick="applyPreset('fv', {p: 100000, r: 10, t: 5})">₹1L at 10% for 5Y</button>
-    <button onclick="applyPreset('fv', {p: 500000, r: 8.5, t: 10})">₹5L at 8.5% for 10Y</button>
-  </div>
+  <p class="description" id="fvDesc">Calculate what a present investment will be worth after a specified period at an annual rate.</p>
 
   <div class="worksheet">
-    <div class="inputs">
-      <div class="field"><label>Principal Amount</label><input id="fvP" type="number" value="100000" oninput="liveUpdate('fv')"></div>
-      <div class="field"><label>Annual Rate (%)</label><input id="fvR" type="number" value="10" step=".01" oninput="liveUpdate('fv')"></div>
-      <div class="field"><label>Time, Years</label><input id="fvT" type="number" value="5" step=".1" oninput="liveUpdate('fv')"></div>
+    <!-- Calculation Type Selection -->
+    <div style="margin-bottom: 22px;">
+      <label style="display:block; font-size:11px; text-transform:uppercase; letter-spacing:.08em; color:var(--muted); margin-bottom:8px; font-weight:700;">CALCULATION TYPE</label>
+      <div style="display:flex; gap:20px; align-items:center;">
+        <label style="cursor:pointer; display:flex; align-items:center; gap:6px; font-family:'IBM Plex Sans'; font-size:14px; font-weight:500;">
+          <input type="radio" name="fvCalcType" value="lump" checked onchange="onFVTypeChange()"> Lump Sum
+        </label>
+        <label style="cursor:pointer; display:flex; align-items:center; gap:6px; font-family:'IBM Plex Sans'; font-size:14px; font-weight:500;">
+          <input type="radio" name="fvCalcType" value="annuity" onchange="onFVTypeChange()"> Annuity
+        </label>
+      </div>
     </div>
-    <div class="actions"><button class="btn" onclick="calcFV()">Calculate</button><button class="btn secondary" onclick="resetForm('fv')">Reset</button></div>
+
+    <!-- Annuity Type Selection -->
+    <div id="fvAnnuityGroup" style="margin-bottom: 22px; display: none; padding-top: 16px; border-top: 1px dashed var(--rule);">
+      <label style="display:block; font-size:11px; text-transform:uppercase; letter-spacing:.08em; color:var(--muted); margin-bottom:8px; font-weight:700;">ANNUITY TYPE</label>
+      <div style="display:flex; gap:16px; flex-wrap:wrap; align-items:center;">
+        <label style="cursor:pointer; display:flex; align-items:center; gap:6px; font-family:'IBM Plex Sans'; font-size:14px;">
+          <input type="radio" name="fvAnnuityType" value="ordinary" checked onchange="onFVAnnuityTypeChange()"> Ordinary Annuity
+        </label>
+        <label style="cursor:pointer; display:flex; align-items:center; gap:6px; font-family:'IBM Plex Sans'; font-size:14px;">
+          <input type="radio" name="fvAnnuityType" value="due" onchange="onFVAnnuityTypeChange()"> Annuity Due
+        </label>
+        <label style="cursor:pointer; display:flex; align-items:center; gap:6px; font-family:'IBM Plex Sans'; font-size:14px;">
+          <input type="radio" name="fvAnnuityType" value="deferred" onchange="onFVAnnuityTypeChange()"> Deferred Annuity
+        </label>
+        <label style="cursor:pointer; display:flex; align-items:center; gap:6px; font-family:'IBM Plex Sans'; font-size:14px;">
+          <input type="radio" name="fvAnnuityType" value="growing" onchange="onFVAnnuityTypeChange()"> Growing Annuity
+        </label>
+      </div>
+      <div id="fvTimingDesc" class="note" style="margin-top:12px; margin-bottom:0; display:none;"></div>
+    </div>
+
+    <div class="presets" id="fvPresets">
+      <button onclick="applyPreset('fv', {p: 100000, r: 10, t: 5})">₹1L at 10% for 5Y</button>
+      <button onclick="applyPreset('fv', {p: 500000, r: 8.5, t: 10})">₹5L at 8.5% for 10Y</button>
+    </div>
+
+    <div class="inputs">
+      <div class="field" id="fvFieldP">
+        <label id="fvLabelP">Principal Amount</label>
+        <input id="fvP" type="number" value="100000" oninput="liveUpdate('fv')">
+      </div>
+      <div class="field" id="fvFieldPMT" style="display:none;">
+        <label id="fvLabelPMT">Periodic Payment (PMT)</label>
+        <input id="fvPMT" type="number" value="10000" oninput="liveUpdate('fv')">
+      </div>
+      <div class="field" id="fvFieldR">
+        <label id="fvLabelR">Interest Rate per Period (%)</label>
+        <input id="fvR" type="number" value="10" step=".01" oninput="liveUpdate('fv')">
+      </div>
+      <div class="field" id="fvFieldG" style="display:none;">
+        <label id="fvLabelG">Growth Rate per Period (%)</label>
+        <input id="fvG" type="number" value="5" step=".01" oninput="liveUpdate('fv')">
+      </div>
+      <div class="field" id="fvFieldT">
+        <label id="fvLabelT">Number of Periods</label>
+        <input id="fvT" type="number" value="5" step=".1" oninput="liveUpdate('fv')">
+      </div>
+      <div class="field" id="fvFieldD" style="display:none;">
+        <label id="fvLabelD">Deferral Period (d)</label>
+        <input id="fvD" type="number" value="2" step="1" oninput="liveUpdate('fv')">
+      </div>
+    </div>
+
+    <div class="actions">
+      <button class="btn" onclick="calcFV()">Calculate</button>
+      <button class="btn secondary" onclick="resetForm('fv')">Reset</button>
+    </div>
     <div id="fvErr" class="error"></div>
     
-    <div class="answer"><div class="answer-label">Answer</div><div class="answer-value" id="fvOut">-</div><div class="answer-caption">Future value of the investment</div></div>
-    <div class="working"><div class="working-title">WORKING</div><div class="formula" id="fvWork">-</div></div>
-    <div class="chart-section"><div class="chart-title">Value Growth</div><div class="chart" id="fvChart"></div></div>
+    <div class="answer">
+      <div class="answer-label">Answer</div>
+      <div class="answer-value" id="fvOut">-</div>
+      <div class="answer-caption" id="fvCaption">Future value of the investment</div>
+    </div>
+    <div class="working">
+      <div class="working-title">WORKING</div>
+      <div class="formula" id="fvFormula" style="font-weight:600; color:var(--accent); margin-top:8px; margin-bottom:4px;"></div>
+      <div class="formula" id="fvWork">-</div>
+    </div>
+    <div class="chart-section">
+      <div class="chart-title">Value Growth</div>
+      <div class="chart" id="fvChart"></div>
+    </div>
   </div>
 </section>
 
@@ -582,7 +783,7 @@ if (typeof module !== 'undefined' && module.exports) {
 
 </main>
 </div>
-<footer class="footer" style="display:none;" id="footerBar"><span>FinSight · Financial Calculation Notebook</span><span>BS3210 · Assignment 1</span></footer>
+<footer class="footer" style="display:none;" id="footerBar"><span>TVMcalsi · Financial Calculation Notebook</span><span>BS3210 · Assignment 1</span></footer>
 
 <!-- Global Error Screen -->
 <div id="globalErrorScreen" style="display:none; position:fixed; inset:0; background:var(--paper); z-index:999; flex-direction:column; justify-content:center; align-items:center; text-align:center; padding:20px;">
@@ -676,7 +877,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // Presets
 function applyPreset(screen, values) {
-  if (screen === 'fv') { setVal('fvP', values.p); setVal('fvR', values.r); setVal('fvT', values.t); calcFV(); }
+  if (screen === 'fv') {
+    if (values.p !== undefined) setVal('fvP', values.p);
+    if (values.pmt !== undefined) setVal('fvPMT', values.pmt);
+    if (values.r !== undefined) setVal('fvR', values.r);
+    if (values.g !== undefined) setVal('fvG', values.g);
+    if (values.t !== undefined) setVal('fvT', values.t);
+    if (values.d !== undefined) setVal('fvD', values.d);
+    calcFV();
+  }
   if (screen === 'emi') { setVal('eP', values.p); setVal('eR', values.r); setVal('eT', values.t); calcEMI(); }
 }
 
@@ -687,7 +896,144 @@ function liveUpdate(screen) {
 }
 
 function resetForm(screen) {
-  if (screen === 'fv') { setVal('fvP', 100000); setVal('fvR', 10); setVal('fvT', 5); calcFV(true); }
+  if (screen === 'fv') {
+    setVal('fvP', 100000);
+    setVal('fvPMT', 10000);
+    setVal('fvR', 10);
+    setVal('fvG', 5);
+    setVal('fvT', 5);
+    setVal('fvD', 2);
+    calcFV(true);
+  }
+}
+
+// Future Value Mode Selection & UI Updates
+function getSelectedFVCalcType() {
+  const el = document.querySelector('input[name="fvCalcType"]:checked');
+  return el ? el.value : 'lump';
+}
+
+function getSelectedFVAnnuityType() {
+  const el = document.querySelector('input[name="fvAnnuityType"]:checked');
+  return el ? el.value : 'ordinary';
+}
+
+function onFVTypeChange() {
+  const calcType = getSelectedFVCalcType();
+  const annuityGroup = document.getElementById('fvAnnuityGroup');
+  if (calcType === 'annuity') {
+    if (annuityGroup) annuityGroup.style.display = 'block';
+    onFVAnnuityTypeChange();
+  } else {
+    if (annuityGroup) annuityGroup.style.display = 'none';
+    updateFVUIForMode('lump');
+  }
+}
+
+function onFVAnnuityTypeChange() {
+  const annuityType = getSelectedFVAnnuityType();
+  updateFVUIForMode(annuityType);
+}
+
+function updateFVUIForMode(mode) {
+  hideErrors();
+  
+  const fvFieldP = document.getElementById('fvFieldP');
+  const fvFieldPMT = document.getElementById('fvFieldPMT');
+  const fvFieldR = document.getElementById('fvFieldR');
+  const fvFieldG = document.getElementById('fvFieldG');
+  const fvFieldT = document.getElementById('fvFieldT');
+  const fvFieldD = document.getElementById('fvFieldD');
+
+  if (fvFieldP) fvFieldP.style.display = 'none';
+  if (fvFieldPMT) fvFieldPMT.style.display = 'none';
+  if (fvFieldR) fvFieldR.style.display = 'none';
+  if (fvFieldG) fvFieldG.style.display = 'none';
+  if (fvFieldT) fvFieldT.style.display = 'none';
+  if (fvFieldD) fvFieldD.style.display = 'none';
+
+  const descEl = document.getElementById('fvDesc');
+  const timingDescEl = document.getElementById('fvTimingDesc');
+
+  if (mode === 'lump') {
+    if (descEl) descEl.textContent = 'Calculate what a present investment will be worth after a specified period at an annual rate.';
+    if (timingDescEl) timingDescEl.style.display = 'none';
+
+    if (fvFieldP) fvFieldP.style.display = 'block';
+    if (fvFieldR) fvFieldR.style.display = 'block';
+    if (fvFieldT) fvFieldT.style.display = 'block';
+
+    setText('fvLabelR', 'Interest Rate per Period (%)');
+    setText('fvLabelT', 'Number of Periods');
+    renderPresets('lump');
+  } else {
+    if (timingDescEl) timingDescEl.style.display = 'block';
+    if (fvFieldPMT) fvFieldPMT.style.display = 'block';
+    if (fvFieldR) fvFieldR.style.display = 'block';
+    if (fvFieldT) fvFieldT.style.display = 'block';
+
+    setText('fvLabelR', 'Interest Rate per Period (%)');
+    setText('fvLabelT', 'Number of Periods');
+
+    if (mode === 'ordinary') {
+      if (descEl) descEl.textContent = 'Calculate the future value of a series of equal payments made at the end of each period.';
+      if (timingDescEl) timingDescEl.textContent = 'Payments occur at the end of each period.';
+      setText('fvLabelPMT', 'Periodic Payment (PMT)');
+      renderPresets('ordinary');
+    } else if (mode === 'due') {
+      if (descEl) descEl.textContent = 'Calculate the future value of a series of equal payments made at the beginning of each period.';
+      if (timingDescEl) timingDescEl.textContent = 'Payments occur at the beginning of each period.';
+      setText('fvLabelPMT', 'Periodic Payment (PMT)');
+      renderPresets('due');
+    } else if (mode === 'deferred') {
+      if (descEl) descEl.textContent = 'Calculate the future value of a series of payments that begin after a deferral period.';
+      if (timingDescEl) timingDescEl.textContent = 'Payments begin after a specified number of periods.';
+      setText('fvLabelPMT', 'Periodic Payment (PMT)');
+      setText('fvLabelT', 'Number of Payments');
+      if (fvFieldD) fvFieldD.style.display = 'block';
+      renderPresets('deferred');
+    } else if (mode === 'growing') {
+      if (descEl) descEl.textContent = 'Calculate the future value of a series of payments that grow at a constant rate each period.';
+      if (timingDescEl) timingDescEl.textContent = 'Payments increase by a fixed growth rate each period.';
+      setText('fvLabelPMT', 'First Periodic Payment (PMT)');
+      if (fvFieldG) fvFieldG.style.display = 'block';
+      renderPresets('growing');
+    }
+  }
+
+  calcFV(true);
+}
+
+function renderPresets(mode) {
+  const container = document.getElementById('fvPresets');
+  if (!container) return;
+
+  if (mode === 'lump') {
+    container.innerHTML = `
+      <button onclick="applyPreset('fv', {p: 100000, r: 10, t: 5})">₹1L at 10% for 5Y</button>
+      <button onclick="applyPreset('fv', {p: 500000, r: 8.5, t: 10})">₹5L at 8.5% for 10Y</button>
+    `;
+  } else if (mode === 'ordinary') {
+    container.innerHTML = `
+      <button onclick="applyPreset('fv', {pmt: 10000, r: 8, t: 10})">₹10K/yr at 8% for 10Y</button>
+      <button onclick="applyPreset('fv', {pmt: 50000, r: 10, t: 5})">₹50K/yr at 10% for 5Y</button>
+    `;
+  } else if (mode === 'due') {
+    container.innerHTML = `
+      <button onclick="applyPreset('fv', {pmt: 10000, r: 8, t: 10})">₹10K/yr at 8% for 10Y</button>
+      <button onclick="applyPreset('fv', {pmt: 25000, r: 9, t: 15})">₹25K/yr at 9% for 15Y</button>
+    `;
+  } else if (mode === 'deferred') {
+    container.innerHTML = `
+      <button onclick="applyPreset('fv', {pmt: 10000, r: 8, t: 5, d: 2})">₹10K/yr at 8% for 5Y (2Y Defer)</button>
+      <button onclick="applyPreset('fv', {pmt: 50000, r: 10, t: 10, d: 3})">₹50K/yr at 10% for 10Y (3Y Defer)</button>
+    `;
+  } else if (mode === 'growing') {
+    container.innerHTML = `
+      <button onclick="applyPreset('fv', {pmt: 10000, r: 8, g: 5, t: 10})">₹10K/yr, g=5%, r=8% for 10Y</button>
+      <button onclick="applyPreset('fv', {pmt: 20000, r: 6, g: 6, t: 5})">₹20K/yr, g=6%, r=6% (r=g) for 5Y</button>
+    `;
+  }
 }
 
 // Global Error Handler
@@ -852,30 +1198,132 @@ function renderScenarioChart(containerId, scenarioData) {
   container.innerHTML = svg;
 }
 
-// Calculators
+function clearFVResults() {
+  setText('fvOut', '-');
+  setText('fvFormula', '');
+  setText('fvWork', '-');
+  const chartContainer = document.getElementById('fvChart');
+  if (chartContainer) chartContainer.innerHTML = '';
+}
+
 function calcFV(silent=false) {
   hideErrors();
+  const calcType = getSelectedFVCalcType();
+  const annuityType = calcType === 'annuity' ? getSelectedFVAnnuityType() : 'lump';
+  const mode = calcType === 'annuity' ? annuityType : 'lump';
+
   try {
-    const P = getVal('fvP');
-    const R = getVal('fvR');
-    const T = getVal('fvT');
-    const r = FinSightEngine.calculateFutureValue({ principal: P, rate: R, years: T });
-    setText('fvOut', fc(r.value));
-    setHtml('fvWork', r.working.replace(/\n/g, '<br>'));
-    
+    let res = null;
+    let totalPeriods = 5;
+    let historyTitle = 'Future Value';
+
+    if (mode === 'lump') {
+      const P = getVal('fvP');
+      const R = getVal('fvR');
+      const T = getVal('fvT');
+      if (isNaN(P) || isNaN(R) || isNaN(T)) {
+        clearFVResults();
+        return;
+      }
+      res = FinSightEngine.calculateFutureValueLumpSum({ principal: P, rate: R, years: T });
+      totalPeriods = T;
+      historyTitle = 'Future Value (Lump Sum)';
+    } else if (mode === 'ordinary') {
+      const PMT = getVal('fvPMT');
+      const R = getVal('fvR');
+      const T = getVal('fvT');
+      if (isNaN(PMT) || isNaN(R) || isNaN(T)) {
+        clearFVResults();
+        return;
+      }
+      res = FinSightEngine.calculateFutureValueOrdinaryAnnuity({ pmt: PMT, rate: R, periods: T });
+      totalPeriods = T;
+      historyTitle = 'Future Value (Ordinary Annuity)';
+    } else if (mode === 'due') {
+      const PMT = getVal('fvPMT');
+      const R = getVal('fvR');
+      const T = getVal('fvT');
+      if (isNaN(PMT) || isNaN(R) || isNaN(T)) {
+        clearFVResults();
+        return;
+      }
+      res = FinSightEngine.calculateFutureValueAnnuityDue({ pmt: PMT, rate: R, periods: T });
+      totalPeriods = T;
+      historyTitle = 'Future Value (Annuity Due)';
+    } else if (mode === 'deferred') {
+      const PMT = getVal('fvPMT');
+      const R = getVal('fvR');
+      const T = getVal('fvT');
+      const D = getVal('fvD');
+      if (isNaN(PMT) || isNaN(R) || isNaN(T) || isNaN(D)) {
+        clearFVResults();
+        return;
+      }
+      res = FinSightEngine.calculateFutureValueDeferredAnnuity({ pmt: PMT, rate: R, periods: T, deferralPeriods: D });
+      totalPeriods = T + D;
+      historyTitle = 'Future Value (Deferred Annuity)';
+    } else if (mode === 'growing') {
+      const PMT = getVal('fvPMT');
+      const R = getVal('fvR');
+      const G = getVal('fvG');
+      const T = getVal('fvT');
+      if (isNaN(PMT) || isNaN(R) || isNaN(G) || isNaN(T)) {
+        clearFVResults();
+        return;
+      }
+      res = FinSightEngine.calculateFutureValueGrowingAnnuity({ pmt: PMT, rate: R, growthRate: G, periods: T });
+      totalPeriods = T;
+      historyTitle = 'Future Value (Growing Annuity)';
+    }
+
+    if (!res || res.value === undefined || isNaN(res.value) || !isFinite(res.value)) {
+      clearFVResults();
+      return;
+    }
+
+    setText('fvOut', fc(res.value));
+    setText('fvFormula', res.formula || '');
+    setHtml('fvWork', (res.working || '-').replace(/\n/g, '<br>'));
+
+    // Render Growth Chart
     const steps = 5;
     const pointsData = [];
     const xLabels = [];
+    const maxT = Math.max(0.1, totalPeriods);
+
     for (let i = 0; i <= steps; i++) {
-      const yr = (T * (i / steps));
-      const val = FinSightEngine.calculateFutureValue({ principal: P, rate: R, years: yr }).value;
-      pointsData.push(val);
-      xLabels.push(yr.toFixed(yr % 1 === 0 ? 0 : 1) + 'Y');
+      const p = (maxT * (i / steps));
+      let stepVal = 0;
+      try {
+        if (mode === 'lump') {
+          stepVal = FinSightEngine.calculateFutureValueLumpSum({ principal: getVal('fvP'), rate: getVal('fvR'), years: p }).value;
+        } else if (mode === 'ordinary') {
+          stepVal = FinSightEngine.calculateFutureValueOrdinaryAnnuity({ pmt: getVal('fvPMT'), rate: getVal('fvR'), periods: p }).value;
+        } else if (mode === 'due') {
+          stepVal = FinSightEngine.calculateFutureValueAnnuityDue({ pmt: getVal('fvPMT'), rate: getVal('fvR'), periods: p }).value;
+        } else if (mode === 'deferred') {
+          const d = getVal('fvD');
+          if (p <= d) {
+            stepVal = 0;
+          } else {
+            stepVal = FinSightEngine.calculateFutureValueDeferredAnnuity({ pmt: getVal('fvPMT'), rate: getVal('fvR'), periods: p - d, deferralPeriods: d }).value;
+          }
+        } else if (mode === 'growing') {
+          stepVal = FinSightEngine.calculateFutureValueGrowingAnnuity({ pmt: getVal('fvPMT'), rate: getVal('fvR'), growthRate: getVal('fvG'), periods: p }).value;
+        }
+      } catch(e) {
+        stepVal = 0;
+      }
+      pointsData.push(stepVal);
+      xLabels.push(p.toFixed(p % 1 === 0 ? 0 : 1) + 'P');
     }
     renderLineChart('fvChart', { pointsData, xLabels });
 
-    if(!silent) saveHistory('Future Value', fc(r.value));
-  } catch(e) { showError('fvErr', e.message); }
+    if (!silent) saveHistory(historyTitle, fc(res.value));
+  } catch (e) {
+    showError('fvErr', e.message);
+    clearFVResults();
+  }
 }
 
 function calcPV(silent=false) {
